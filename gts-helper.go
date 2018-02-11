@@ -12,8 +12,8 @@ import (
 func NewEmptyGTS() *GTS {
 	return &GTS{
 		ClassName:    "",
-		Labels:       map[string]string{},
-		Attributes:   map[string]string{},
+		Labels:       Labels{},
+		Attributes:   Attributes{},
 		LastActivity: 0,
 		Values:       [][]interface{}{},
 	}
@@ -23,15 +23,15 @@ func NewEmptyGTS() *GTS {
 func NewGTS(className string) *GTS {
 	return &GTS{
 		ClassName:    className,
-		Labels:       map[string]string{},
-		Attributes:   map[string]string{},
+		Labels:       Labels{},
+		Attributes:   Attributes{},
 		LastActivity: 0,
 		Values:       [][]interface{}{},
 	}
 }
 
 // NewGTSWithLabels return a nammed and labelized GTS
-func NewGTSWithLabels(className string, labels map[string]string) *GTS {
+func NewGTSWithLabels(className string, labels Labels) *GTS {
 	return &GTS{
 		ClassName: className,
 		Labels:    labels,
@@ -59,8 +59,8 @@ func ParseGTSFromBytes(in []byte) (gts *GTS, err error) {
 }
 
 // ParseGTSArrayFromString parse sensision format into a new GTS array
-func ParseGTSArrayFromString(in string) (gtss []*GTS, err error) {
-	gtss = []*GTS{}
+func ParseGTSArrayFromString(in string) (gtss GTSList, err error) {
+	gtss = GTSList{}
 	for _, sensisionLine := range strings.Split(in, "\n") {
 		gts, err := ParseGTSFromString(sensisionLine)
 		if err != nil {
@@ -72,18 +72,18 @@ func ParseGTSArrayFromString(in string) (gtss []*GTS, err error) {
 }
 
 // ParseGTSArrayFromBytes parse sensision format into a new GTS array
-func ParseGTSArrayFromBytes(in []byte) (gtss []*GTS, err error) {
+func ParseGTSArrayFromBytes(in []byte) (gtss GTSList, err error) {
 	return ParseGTSArrayFromString(string(in))
 }
 
-func parseSensisionLine(in string) (ts int64, lat float64, long float64, alt float64, c string, l map[string]string, a map[string]string, v interface{}, err error) {
+func parseSensisionLine(in string) (ts int64, lat float64, long float64, alt float64, c string, l Labels, a Attributes, v interface{}, err error) {
 	ts = int64(time.Now().Nanosecond()) / 1000
 	lat = 0
 	long = 0
 	alt = 0
 	c = ""
-	l = map[string]string{}
-	a = map[string]string{}
+	l = Labels{}
+	a = Attributes{}
 	v = 0
 	err = nil
 
@@ -193,43 +193,71 @@ func parseSensisionLine(in string) (ts int64, lat float64, long float64, alt flo
 // Sensision return the sensision format of the GTS
 func (gts *GTS) Sensision() (s string) {
 	s = ""
-	static := " " + gts.ClassName + formatLabels(gts.Labels)
+	static := gts.ClassName + formatLabels(gts.Labels)
 	if len(gts.Attributes) > 0 {
-		static += formatLabels(gts.Attributes)
+		static += formatAttributes(gts.Attributes)
 	}
-	static += " "
 
 	for _, dps := range gts.Values {
-		dp := ""
-		dp += fmt.Sprintf("%v", dps[0]) + "/"
-
-		if dps[1] != 0 && dps[2] != 0 {
-			lat, oka := dps[1].(float64)
-			long, okb := dps[1].(float64)
-			if !oka || !okb {
-				continue
-			}
-			dp += fmt.Sprintf("%v:%v", lat, long)
-		}
-		dp += "/"
-
-		if dps[3] != 0 {
-			alt, ok := dps[3].(float64)
-			if !ok {
-				continue
-			}
-			dp += strconv.FormatFloat(alt, 'f', -1, 64)
+		l := len(dps)
+		if l == 0 {
+			continue
 		}
 
-		s += dp + static + fmt.Sprintf("%v", dps[4]) + "\n"
+		ts := ""
+		lat := ""
+		lng := ""
+		alt := ""
+		val := getVal(dps[l-1])
+
+		if l >= 2 {
+			ts = getVal(dps[0])
+		}
+		if l >= 4 {
+			lat = getVal(dps[1])
+			lng = getVal(dps[2])
+		}
+		if l == 5 {
+			alt = getVal(dps[3])
+		}
+
+		if lat != "" && lng != "" {
+			s += fmt.Sprintf("%s/%s:%s/%s %s %s", ts, lat, lng, alt, static, val)
+		} else {
+			s += fmt.Sprintf("%s//%s %s %s", ts, alt, static, val)
+		}
+
+		s += "\n"
 	}
-
 	return
 }
 
-func formatLabels(labels map[string]string) (s string) {
+func getVal(i interface{}) string {
+	switch i.(type) {
+	case int, int8, int16, int32, int64:
+		return fmt.Sprintf("%d", i)
+	case uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", i)
+	case float32, float64:
+		return fmt.Sprintf("%g", i)
+	case string:
+		return i.(string)
+	}
+	return ""
+}
+
+func formatLabels(labels Labels) (s string) {
 	s = "{"
 	for k, v := range labels {
+		s += k + "=" + v
+	}
+	s += "}"
+	return
+}
+
+func formatAttributes(attrs Attributes) (s string) {
+	s = "{"
+	for k, v := range attrs {
 		s += k + "=" + v
 	}
 	s += "}"

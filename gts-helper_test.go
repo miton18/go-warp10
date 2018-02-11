@@ -15,8 +15,8 @@ func TestNewEmptyGTS(t *testing.T) {
 		name: "New empty GTS",
 		want: &GTS{
 			ClassName:    "",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{},
 		},
@@ -43,7 +43,7 @@ func TestNewGTS(t *testing.T) {
 func TestNewGTSWithLabels(t *testing.T) {
 	type args struct {
 		className string
-		labels    map[string]string
+		labels    Labels
 	}
 	tests := []struct {
 		name string
@@ -53,14 +53,14 @@ func TestNewGTSWithLabels(t *testing.T) {
 		name: "New GTS with labels",
 		args: args{
 			className: "my.metric",
-			labels: map[string]string{
+			labels: Labels{
 				"a": "b",
 				"c": "d",
 			},
 		},
 		want: &GTS{
 			ClassName: "my.metric",
-			Labels: map[string]string{
+			Labels: Labels{
 				"a": "b",
 				"c": "d",
 			},
@@ -91,8 +91,8 @@ func TestParseGTSFromString(t *testing.T) {
 		},
 		wantGts: &GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 10}},
 		},
@@ -104,8 +104,8 @@ func TestParseGTSFromString(t *testing.T) {
 		},
 		wantGts: &GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{"a": "b", "c": "1"},
-			Attributes:   map[string]string{},
+			Labels:       Labels{"a": "b", "c": "1"},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 10}},
 		},
@@ -117,8 +117,8 @@ func TestParseGTSFromString(t *testing.T) {
 		},
 		wantGts: &GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), "my awesome metric"}},
 		},
@@ -130,8 +130,8 @@ func TestParseGTSFromString(t *testing.T) {
 		},
 		wantGts: &GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(12.3456), float64(4.345678), float64(1230), 10}},
 		},
@@ -192,8 +192,8 @@ func TestParseGTSFromBytes(t *testing.T) {
 		},
 		wantGts: &GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 50}},
 		},
@@ -220,23 +220,23 @@ func TestParseGTSArrayFromString(t *testing.T) {
 	tests := []struct {
 		name     string
 		args     args
-		wantGtss []*GTS
+		wantGtss GTSList
 		wantErr  bool
 	}{{
 		name: "Parse bytes sensision metrics",
 		args: args{
 			in: "1234// my.metric{} 50\n5678// my.metric2{} 100",
 		},
-		wantGtss: []*GTS{&GTS{
+		wantGtss: GTSList{&GTS{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 50}},
 		}, &GTS{
 			ClassName:    "my.metric2",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
 			Values:       [][]interface{}{{int64(5678), float64(0), float64(0), float64(0), 100}},
 		}},
@@ -276,8 +276,8 @@ func Test_parseSensisionLine(t *testing.T) {
 		wantLong float64
 		wantAlt  float64
 		wantC    string
-		wantL    map[string]string
-		wantA    map[string]string
+		wantL    Labels
+		wantA    Attributes
 		wantV    interface{}
 		wantErr  bool
 	}{
@@ -321,8 +321,8 @@ func Test_parseSensisionLine(t *testing.T) {
 func TestGTS_Sensision(t *testing.T) {
 	type fields struct {
 		ClassName    string
-		Labels       map[string]string
-		Attributes   map[string]string
+		Labels       Labels
+		Attributes   Attributes
 		LastActivity int64
 		Values       [][]interface{}
 	}
@@ -331,15 +331,35 @@ func TestGTS_Sensision(t *testing.T) {
 		fields fields
 		wantS  string
 	}{{
-		name: "Format metric",
+		name: "Format metric TS + VALUE",
 		fields: fields{
 			ClassName:    "my.metric",
-			Labels:       map[string]string{},
-			Attributes:   map[string]string{},
+			Labels:       Labels{},
+			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{1234, 0, 0, 0, 100}},
+			Values:       [][]interface{}{{1234, 100}},
 		},
 		wantS: "1234// my.metric{} 100\n",
+	}, {
+		name: "Format metric TS + LAT + LONG + VAL",
+		fields: fields{
+			ClassName:    "my.metric",
+			Labels:       Labels{},
+			Attributes:   Attributes{},
+			LastActivity: 0,
+			Values:       [][]interface{}{{1234, 4.086475784, -1.6497593, 100}},
+		},
+		wantS: "1234/4.086475784:-1.6497593/ my.metric{} 100\n",
+	}, {
+		name: "Format metric TS + LAT + LONG + ALT + VAL",
+		fields: fields{
+			ClassName:    "my.metric",
+			Labels:       Labels{},
+			Attributes:   Attributes{},
+			LastActivity: 0,
+			Values:       [][]interface{}{{1234, -4.086475784, 1.6497593, 12034, 100}},
+		},
+		wantS: "1234/-4.086475784:1.6497593/12034 my.metric{} 100\n",
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

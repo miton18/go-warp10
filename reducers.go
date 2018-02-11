@@ -2,6 +2,10 @@ package warp10
 
 import "fmt"
 
+type (
+	reducer string
+)
+
 var (
 
 	// REDUCERS

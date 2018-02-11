@@ -2,6 +2,10 @@ package warp10
 
 import "fmt"
 
+type (
+	bucketizer string
+)
+
 var (
 	// BUCKETIZERS
 
