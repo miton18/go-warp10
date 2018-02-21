@@ -1,7 +1,7 @@
 package warp10
 
 import (
-	"sync"
+	"sync/atomic"
 )
 
 // MetricCounter is a metric that can only grow
@@ -9,7 +9,6 @@ type MetricCounter struct {
 	name, help string
 	count      uint64
 	context    Labels
-	lock       *sync.Mutex
 }
 
 // NewMetricCounter initialize a new counter
@@ -22,7 +21,6 @@ func NewMetricCounter(name string, context Labels, help string) (mc *MetricCount
 		name:    name,
 		context: context,
 		help:    help,
-		lock:    &sync.Mutex{},
 	}
 }
 
@@ -41,27 +39,21 @@ func (mc *MetricCounter) Get() GTSList {
 	return GTSList{&GTS{
 		ClassName: mc.name,
 		Labels:    mc.context,
-		Values:    [][]interface{}{{mc.count}},
+		Values:    [][]interface{}{{atomic.LoadUint64(&mc.count)}},
 	}}
 }
 
 // Reset set to 0 the counter
 func (mc *MetricCounter) Reset() {
-	mc.lock.Lock()
-	mc.count = 0
-	mc.lock.Unlock()
+	atomic.AddUint64(&mc.count, ^uint64(mc.count))
 }
 
 // Inc add 1 to the counter
 func (mc *MetricCounter) Inc() {
-	mc.lock.Lock()
-	mc.count++
-	mc.lock.Unlock()
+	atomic.AddUint64(&mc.count, 1)
 }
 
 // Add N to the counter
 func (mc *MetricCounter) Add(n uint64) {
-	mc.lock.Lock()
-	mc.count += n
-	mc.lock.Unlock()
+	atomic.AddUint64(&mc.count, n)
 }
