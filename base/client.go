@@ -1,4 +1,4 @@
-package warp10
+package base
 
 // Client is a Warp10 client
 type Client struct {

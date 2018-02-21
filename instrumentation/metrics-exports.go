@@ -1,14 +1,14 @@
-package warp10
+package instrumentation
 
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sort"
-	"strings"
 	"sync"
 	"time"
+
+	b "github.com/miton18/go-warp10/base"
 )
 
 // PassiveExporter Expose your metrics on a web page in Sensision format
@@ -23,7 +23,7 @@ type PassiveExporter struct {
 // You can manually tell this exporter to flush metrics or let a ticker do it for you
 type ActiveExporter struct {
 	Metrics  Metrics
-	Client   *Client
+	Client   *b.Client
 	flushing sync.Mutex
 }
 
@@ -62,7 +62,7 @@ func NewPassiveExporter(listen, path string) (*PassiveExporter, error) {
 // Default behaviour is to send batch of metric at Period interval
 // If period is nil, you have to manually Flush metrics.
 // If the exporter failed to push metrics, it will keep them for the next batch and send you an error in the chan
-func NewActiveExporter(warp10Client Client, period *time.Duration) (*ActiveExporter, chan error) {
+func NewActiveExporter(warp10Client b.Client, period *time.Duration) (*ActiveExporter, chan error) {
 	ae := &ActiveExporter{
 		Metrics:  Metrics{},
 		Client:   &warp10Client,
@@ -120,31 +120,25 @@ func (ae *ActiveExporter) Flush() error {
 	ae.flushing.Lock()
 	defer ae.flushing.Unlock()
 
-	r := strings.NewReader(sensisionFromGTS(ae.Metrics))
-
-	req, err := http.NewRequest("POST", ae.Client.Host+ae.Client.UpdatePath, r)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Add(ae.Client.Warp10Header, ae.Client.WriteToken)
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		resBody, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("Failed to send metrics: %s", err.Error())
-		}
-		return fmt.Errorf("Failed to send metrics: %s", string(resBody))
+	if err := ae.Client.Update(getGTSList(ae.Metrics)); err != nil {
+		return fmt.Errorf("Failed to send metrics: %s", err.Error())
 	}
 
 	ae.Metrics = ae.Metrics[:0]
 	return nil
+}
+
+func getGTSList(m Metrics) b.GTSList {
+	gl := b.GTSList{}
+	for _, mPtr := range m {
+		if mPtr != nil {
+			metric := (*mPtr)
+			for _, gts := range metric.Get() {
+				gl = append(gl, gts)
+			}
+		}
+	}
+	return gl
 }
 
 func sensisionFromGTS(m Metrics) string {

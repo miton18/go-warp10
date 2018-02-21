@@ -1,10 +1,12 @@
-package warp10
+package instrumentation
+
+import b "github.com/miton18/go-warp10/base"
 
 // Metric is a thing you can monitor
 type Metric interface {
 	Name() string
 	Help() string
-	Get() GTSList
+	Get() b.GTSList
 	Reset()
 }
 

@@ -1,22 +1,24 @@
-package warp10
+package instrumentation
 
 import (
 	"sync/atomic"
+
+	b "github.com/miton18/go-warp10/base"
 )
 
-// MetricCounter is a metric that can only grow
-type MetricCounter struct {
+// Counter is a metric that can only grow
+type Counter struct {
 	name, help string
 	count      uint64
-	context    Labels
+	context    b.Labels
 }
 
-// NewMetricCounter initialize a new counter
-func NewMetricCounter(name string, context Labels, help string) (mc *MetricCounter) {
+// NewCounter initialize a new counter
+func NewCounter(name string, context b.Labels, help string) (mc *Counter) {
 	if context == nil {
-		context = Labels{}
+		context = b.Labels{}
 	}
-	return &MetricCounter{
+	return &Counter{
 		count:   0,
 		name:    name,
 		context: context,
@@ -25,18 +27,18 @@ func NewMetricCounter(name string, context Labels, help string) (mc *MetricCount
 }
 
 // Name return the metric name of the counter
-func (mc *MetricCounter) Name() string {
+func (mc *Counter) Name() string {
 	return mc.name
 }
 
 // Help return informations about this metric
-func (mc *MetricCounter) Help() string {
+func (mc *Counter) Help() string {
 	return "counter: " + mc.help
 }
 
 // Get return a plain GTS
-func (mc *MetricCounter) Get() GTSList {
-	return GTSList{&GTS{
+func (mc *Counter) Get() b.GTSList {
+	return b.GTSList{&b.GTS{
 		ClassName: mc.name,
 		Labels:    mc.context,
 		Values:    [][]interface{}{{atomic.LoadUint64(&mc.count)}},
@@ -44,16 +46,16 @@ func (mc *MetricCounter) Get() GTSList {
 }
 
 // Reset set to 0 the counter
-func (mc *MetricCounter) Reset() {
-	atomic.AddUint64(&mc.count, ^uint64(mc.count))
+func (mc *Counter) Reset() {
+	atomic.AddUint64(&mc.count, ^uint64(mc.count-1))
 }
 
 // Inc add 1 to the counter
-func (mc *MetricCounter) Inc() {
+func (mc *Counter) Inc() {
 	atomic.AddUint64(&mc.count, 1)
 }
 
 // Add N to the counter
-func (mc *MetricCounter) Add(n uint64) {
+func (mc *Counter) Add(n uint64) {
 	atomic.AddUint64(&mc.count, n)
 }

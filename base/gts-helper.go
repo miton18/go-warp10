@@ -1,4 +1,4 @@
-package warp10
+package base
 
 import (
 	"errors"
@@ -127,13 +127,13 @@ func parseSensisionLine(in string) (ts int64, lat float64, long float64, alt flo
 
 		lat, err = strconv.ParseFloat(latlong[0], 64)
 		if err != nil {
-			err = errors.New("Cannot parse " + ctx[0] + " as valid lattitude")
+			err = errors.New("Cannot parse " + ctx[0] + " as valid latitude")
 			return
 		}
 
 		long, err = strconv.ParseFloat(latlong[1], 64)
 		if err != nil {
-			err = errors.New("Cannot parse " + ctx[0] + " as valid lattitude")
+			err = errors.New("Cannot parse " + ctx[0] + " as valid latitude")
 			return
 		}
 	}
@@ -190,13 +190,28 @@ func parseSensisionLine(in string) (ts int64, lat float64, long float64, alt flo
 	return
 }
 
+// SensisionSelector return the GTS selector (class + labels (+ attributes) )
+func (gts *GTS) SensisionSelector(withAttributes bool) (s string) {
+	s = gts.ClassName + formatLabels(gts.Labels)
+	if withAttributes {
+		s += formatAttributes(gts.Attributes)
+	}
+	return s
+}
+
+// SensisionSelectors return the GTSList selectors (class + labels (+ attributes) )
+func (gtsList GTSList) SensisionSelectors(withAttributes bool) (s string) {
+	s = ""
+	for _, gts := range gtsList {
+		s += gts.SensisionSelector(withAttributes) + "\n"
+	}
+	return
+}
+
 // Sensision return the sensision format of the GTS
 func (gts *GTS) Sensision() (s string) {
 	s = ""
-	static := gts.ClassName + formatLabels(gts.Labels)
-	if len(gts.Attributes) > 0 {
-		static += formatAttributes(gts.Attributes)
-	}
+	static := gts.SensisionSelector(false)
 
 	for _, dps := range gts.Values {
 		l := len(dps)
@@ -232,6 +247,15 @@ func (gts *GTS) Sensision() (s string) {
 	return
 }
 
+// Sensision return the sensision format of all GTS
+func (gtsList GTSList) Sensision() (s string) {
+	s = ""
+	for _, gts := range gtsList {
+		s += gts.Sensision() + "\n"
+	}
+	return
+}
+
 func getVal(i interface{}) string {
 	switch i.(type) {
 	case int, int8, int16, int32, int64:
@@ -248,8 +272,10 @@ func getVal(i interface{}) string {
 
 func formatLabels(labels Labels) (s string) {
 	s = "{"
-	for k, v := range labels {
-		s += k + "=" + v
+	if labels != nil {
+		for k, v := range labels {
+			s += k + "=" + v
+		}
 	}
 	s += "}"
 	return

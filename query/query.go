@@ -1,27 +1,27 @@
-package warp10
+package query
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 
+	b "github.com/miton18/go-warp10/base"
 	"github.com/moul/http2curl"
 )
 
 // Query is a WarpScript
 type Query struct {
 	warpscript string
-	client     *Client
+	client     *b.Client
 	Errs       []error
 }
 
 // NewQuery should be called to build a new Warpscript
-func (c *Client) NewQuery() *Query {
+func NewQuery(c *b.Client) *Query {
 	return &Query{
 		warpscript: "// GENERATED WARPSCRIPT\n",
 		client:     c,
@@ -30,7 +30,7 @@ func (c *Client) NewQuery() *Query {
 
 // Fetch grep some datapoints on the backend
 // if token is empty, the client one is used
-func (q *Query) Fetch(token, class string, labels Labels, start time.Time, interval time.Duration) *Query {
+func (q *Query) Fetch(token, class string, labels b.Labels, start time.Time, interval time.Duration) *Query {
 	if token == "" {
 		token = q.client.ReadToken
 	}
@@ -100,12 +100,12 @@ func (q *Query) isDecrementalCounter() *Query {
 // Sort sort GTS values by timestamp
 // Expect a GTS array as previous element
 func (q *Query) Sort() *Query {
-	q.warpscript += "true RESETS\n"
+	q.warpscript += "SORT\n"
 	return q
 }
 
 // Exec send the WarpScript and parse the response
-func (q *Query) Exec() (gtss []GTS, err error) {
+func (q *Query) Exec() (gtsList b.GTSList, err error) {
 
 	if len(q.Errs) > 0 {
 		errs := []string{}
@@ -115,30 +115,17 @@ func (q *Query) Exec() (gtss []GTS, err error) {
 		return nil, fmt.Errorf("Can't execute query with errors: %s", strings.Join(errs, "\n"))
 	}
 
-	r := bytes.NewReader([]byte(q.warpscript))
-	req, err := http.NewRequest("POST", q.client.Host+q.client.ExecPath, r)
+	body, err := q.client.Exec(q.warpscript)
 	if err != nil {
 		return
 	}
 
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-
-	bts, err := ioutil.ReadAll(res.Body)
-	if err != nil {
+	var stack []b.GTSList
+	if err = json.Unmarshal(body, &stack); err != nil {
 		return
 	}
 
-	var stack [][]GTS
-	if err = json.Unmarshal(bts, &stack); err != nil {
-		err = errors.New(err.Error() + "\n" + string(bts))
-		return
-	}
-
-	gtss = stack[0]
+	gtsList = stack[0]
 	return
 }
 
