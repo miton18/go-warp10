@@ -265,7 +265,7 @@ func getVal(i interface{}) string {
 	case float32, float64:
 		return fmt.Sprintf("%g", i)
 	case string:
-		return i.(string)
+		return "'" + i.(string) + "'"
 	}
 	return ""
 }
