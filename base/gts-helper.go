@@ -272,10 +272,12 @@ func getVal(i interface{}) string {
 
 func formatLabels(labels Labels) (s string) {
 	s = "{"
-	if labels != nil {
+	if labels != nil && len(labels) > 0 {
+		pairs := []string{}
 		for k, v := range labels {
-			s += k + "=" + v
+			pairs = append(pairs, k+"="+v)
 		}
+		s += strings.Join(pairs, ",")
 	}
 	s += "}"
 	return
@@ -283,8 +285,12 @@ func formatLabels(labels Labels) (s string) {
 
 func formatAttributes(attrs Attributes) (s string) {
 	s = "{"
-	for k, v := range attrs {
-		s += k + "=" + v
+	if attrs != nil {
+		pairs := []string{}
+		for k, v := range attrs {
+			pairs = append(pairs, k+"="+v)
+		}
+		s += strings.Join(pairs, ",")
 	}
 	s += "}"
 	return
