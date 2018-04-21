@@ -17,9 +17,6 @@ type GTS struct {
 // GTSList is an array of GTS
 type GTSList []*GTS
 
-// Selector is a Warp10 selector
-type Selector string
-
 // Labels is a string key/value definition
 type Labels map[string]string
 

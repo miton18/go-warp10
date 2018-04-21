@@ -3,7 +3,6 @@ package query
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -30,15 +29,11 @@ func NewQuery(c *b.Client) *Query {
 
 // Fetch grep some datapoints on the backend
 // if token is empty, the client one is used
-func (q *Query) Fetch(token, class string, labels b.Labels, start time.Time, interval time.Duration) *Query {
+func (q *Query) Fetch(token string, selector b.Selector, start time.Time, interval time.Duration) *Query {
 	if token == "" {
 		token = q.client.ReadToken
 	}
-	ls, err := json.Marshal(labels)
-	if err != nil {
-		q.Errs = append(q.Errs, errors.New("Fetch(): "+err.Error()))
-	}
-	q.warpscript += fmt.Sprintf("[ '%s' '%s' '%s' JSON-> %d %d ] FETCH\n", token, class, ls, start.UnixNano()/1000, interval.Nanoseconds()/1000)
+	q.warpscript += fmt.Sprintf("[ '%s' '%s' %d %d ] FETCH\n", token, selector, start.UnixNano()/1000, interval.Nanoseconds()/1000)
 	return q
 }
 
@@ -65,7 +60,7 @@ func (q *Query) Reduce(red reducer, equivalentLabels []string) *Query {
 
 // Map apply a transformation on datapoints from each GTS
 // Expect a GTS array as previous element
-func (q *Query) Map(token, selector string, start, stop time.Time) *Query {
+func (q *Query) Map() *Query {
 	return q
 }
 

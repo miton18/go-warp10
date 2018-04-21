@@ -13,13 +13,17 @@ type Metric interface {
 // Metrics is a collection of Metric
 type Metrics []*Metric
 
-// Allow to sort metrics by name
+// Len Allow to sort metrics by name
 func (m Metrics) Len() int {
 	return len(m)
 }
+
+// Swap Allow to sort metrics by name
 func (m Metrics) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
+
+// Less Allow to sort metrics by name
 func (m Metrics) Less(i, j int) bool {
 	if m[i] == nil {
 		return false

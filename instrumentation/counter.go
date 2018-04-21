@@ -33,7 +33,7 @@ func (mc *Counter) Name() string {
 
 // Help return informations about this metric
 func (mc *Counter) Help() string {
-	return "counter: " + mc.help
+	return "Counter: " + mc.help
 }
 
 // Get return a plain GTS
