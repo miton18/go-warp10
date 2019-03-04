@@ -12,9 +12,14 @@ func TestClient_NewQuery(t *testing.T) {
 		name string
 		c    *b.Client
 		want *Query
-	}{
-	// TODO: Add test cases.
-	}
+	}{{
+		name: "Empty query",
+		c:    b.NewClient(""),
+		want: &Query{
+			warpscript: "// GENERATED WARPSCRIPT\n",
+			client:     b.NewClient(""),
+		},
+	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &b.Client{}
