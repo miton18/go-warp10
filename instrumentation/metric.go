@@ -11,7 +11,7 @@ type Metric interface {
 }
 
 // Metrics is a collection of Metric
-type Metrics []*Metric
+type Metrics []Metric
 
 // Allow to sort metrics by name
 func (m Metrics) Len() int {
@@ -27,5 +27,5 @@ func (m Metrics) Less(i, j int) bool {
 	if m[j] == nil {
 		return true
 	}
-	return (*m[i]).Name() > (*m[j]).Name()
+	return (m[i]).Name() > (m[j]).Name()
 }

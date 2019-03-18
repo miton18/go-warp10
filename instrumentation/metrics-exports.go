@@ -99,19 +99,19 @@ func NewHandlerExporter() *HandlerExporter {
 
 // Register add a new metric to the bundle
 func (pe *PassiveExporter) Register(m Metric) {
-	pe.Metrics = append(pe.Metrics, &m)
+	pe.Metrics = append(pe.Metrics, m)
 	sort.Sort(pe.Metrics)
 }
 
 // AddMetricToNextBatch add a new metric to the next Flush call or Period
 func (ae *ActiveExporter) AddMetricToNextBatch(m Metric) {
-	ae.Metrics = append(ae.Metrics, &m)
+	ae.Metrics = append(ae.Metrics, m)
 	sort.Sort(ae.Metrics)
 }
 
 // Register add a new metric to the bundle
 func (he *HandlerExporter) Register(m Metric) {
-	he.Metrics = append(he.Metrics, &m)
+	he.Metrics = append(he.Metrics, m)
 	sort.Sort(he.Metrics)
 }
 
@@ -132,7 +132,7 @@ func getGTSList(m Metrics) b.GTSList {
 	gl := b.GTSList{}
 	for _, mPtr := range m {
 		if mPtr != nil {
-			metric := (*mPtr)
+			metric := mPtr
 			for _, gts := range metric.Get() {
 				gl = append(gl, gts)
 			}
@@ -145,7 +145,7 @@ func sensisionFromGTS(m Metrics) string {
 	p := ""
 	for _, mPtr := range m {
 		if mPtr != nil {
-			metric := (*mPtr)
+			metric := mPtr
 			for _, gts := range metric.Get() {
 				p += "# " + metric.Help() + "\n"
 				p += gts.Sensision() + "\n"
