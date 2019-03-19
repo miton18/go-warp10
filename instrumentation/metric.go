@@ -29,3 +29,11 @@ func (m Metrics) Less(i, j int) bool {
 	}
 	return (m[i]).Name() > (m[j]).Name()
 }
+
+func (m Metrics) Get() b.GTSList {
+	res := b.GTSList{}
+	for _, metric := range m {
+		res = append(res, metric.Get()...)
+	}
+	return res
+}
