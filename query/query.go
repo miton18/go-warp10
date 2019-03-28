@@ -145,3 +145,8 @@ func (q *Query) Debug() (string, error) {
 
 	return curl.String(), nil
 }
+
+// Debug output the computed WarpScript
+func (q *Query) String() string {
+	return q.warpscript
+}

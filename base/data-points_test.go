@@ -39,15 +39,15 @@ func TestDatapoints_Add(t *testing.T) {
 				t.Error("NewEmptyGTS() Datapoints must have 1 element")
 				return
 			}
-			if len(tt.dps[0]) != 5 {
-				t.Errorf("NewEmptyGTS() Datapoint must have 5 element: %+v", tt.dps[0])
+			if len(tt.dps[0]) != 2 {
+				t.Errorf("NewEmptyGTS() Datapoint must have 2 element: %+v", tt.dps[0])
 				return
 			}
 			if tt.dps[0][0] != now.UnixNano()/1000 {
 				t.Errorf("NewEmptyGTS() time = %+v, want %+v", tt.dps[0][0], tt.args.ts)
 				return
 			}
-			if tt.dps[0][4] != tt.args.value {
+			if tt.dps[0][len(tt.dps[0]) - 1] != tt.args.value {
 				t.Errorf("NewEmptyGTS() value = %+v, want %+v", tt.dps[0][4], tt.args.value)
 				return
 			}

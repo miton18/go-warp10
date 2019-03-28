@@ -1,5 +1,8 @@
 package base
 
+// Selector is a Warp10 selector
+type Selector string
+
 const (
 	// WildCardSelector select all available GTS
 	WildCardSelector Selector = "~.*{}"

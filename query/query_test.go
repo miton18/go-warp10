@@ -11,19 +11,18 @@ func TestClient_NewQuery(t *testing.T) {
 	tests := []struct {
 		name string
 		c    *b.Client
-		want *Query
+		want string
 	}{{
 		name: "Empty query",
 		c:    b.NewClient(""),
-		want: &Query{
-			warpscript: "// GENERATED WARPSCRIPT\n",
-			client:     b.NewClient(""),
-		},
+		want: "// GENERATED WARPSCRIPT\n",
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &b.Client{}
-			if got := NewQuery(c); !reflect.DeepEqual(got, tt.want) {
+
+			got := NewQuery(c).String()
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Client.NewQuery() = %v, want %v", got, tt.want)
 			}
 		})

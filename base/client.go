@@ -1,5 +1,7 @@
 package base
 
+import "net/http"
+
 // Client is a Warp10 client
 type Client struct {
 	Host         string
@@ -14,6 +16,8 @@ type Client struct {
 
 	ReadToken  string
 	WriteToken string
+
+	HTTPClient *http.Client
 }
 
 // NewClient return a configured Warp10 Client
@@ -27,5 +31,6 @@ func NewClient(host string) *Client {
 		FetchPath:    "/api/v0/fetch",
 		FindPath:     "/api/v0/find",
 		DeletePath:   "/api/v0/delete",
+		HTTPClient:   http.DefaultClient,
 	}
 }

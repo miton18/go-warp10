@@ -5,22 +5,21 @@ import (
 )
 
 // Add a new point to a GTS
-func (dps *Datapoints) Add(ts time.Time, value interface{}) {
+func (dps *Datapoints) Add(ts time.Time, value interface{}) *Datapoints{
 	if dps == nil {
 		dps = &Datapoints{}
 	}
 
 	*dps = append(*dps, []interface{}{
 		ts.UnixNano() / 1000,
-		nil,
-		nil,
-		nil,
 		value,
 	})
+
+	return dps
 }
 
 // AddWithGeo a new point to a GTS with geolocation
-func (dps *Datapoints) AddWithGeo(ts time.Time, lattitude, longitude, altitude float64, value interface{}) {
+func (dps *Datapoints) AddWithGeo(ts time.Time, lattitude, longitude, altitude float64, value interface{}) *Datapoints {
 	if dps == nil {
 		dps = &Datapoints{}
 	}
@@ -32,11 +31,14 @@ func (dps *Datapoints) AddWithGeo(ts time.Time, lattitude, longitude, altitude f
 		altitude,
 		value,
 	})
+
+	return dps
 }
 
 // Has look for datapoint at this time
 func (dps *Datapoints) Has(ts time.Time) bool {
 	if dps == nil {
+		dps = &Datapoints{}
 		return false
 	}
 
@@ -49,15 +51,18 @@ func (dps *Datapoints) Has(ts time.Time) bool {
 }
 
 // Remove datapoint at this time (only the first)
-func (dps *Datapoints) Remove(ts time.Time) {
+func (dps *Datapoints) Remove(ts time.Time) *Datapoints {
 	if dps == nil {
-		return
+		dps = &Datapoints{}
+		return dps
 	}
 
 	for i, dp := range *dps {
 		if dp[0].(int64) == ts.UnixNano()/1000 {
 			*dps = append((*dps)[:i-1], (*dps)[i+1:]...)
-			return
+			return dps
 		}
 	}
+
+	return dps
 }
