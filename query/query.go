@@ -42,6 +42,10 @@ func (q *Query) Fetch(token, class string, labels b.Labels, start time.Time, int
 	return q
 }
 
+func (q *Query) FetchDate(token, class string, labels b.Labels, start, stop time.Time) *Query {
+	return q.Fetch(token, class, labels, stop, stop.Sub(start))
+}
+
 // Bucketize perform a temporel aggregation
 // Expect a GTS array as previous element
 func (q *Query) Bucketize(buc bucketizer, start time.Time, bucket time.Duration, buckets int) *Query {
