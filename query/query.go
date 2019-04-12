@@ -65,7 +65,8 @@ func (q *Query) Reduce(red reducer, equivalentLabels []string) *Query {
 
 // Map apply a transformation on datapoints from each GTS
 // Expect a GTS array as previous element
-func (q *Query) Map(token, selector string, start, stop time.Time) *Query {
+func (q *Query) Map(m mapper, mapperParameter string, pre, post, occurences int) *Query {
+	q.warpscript += fmt.Sprintf("[ SWAP %s %s %d %d %d ] MAP\n", mapperParameter, m, pre, post, occurences)
 	return q
 }
 

@@ -11,7 +11,8 @@ c.ReadToken = "READ_TOKEN"
 
 q := c.NewQuery()
 q = q.Fetch("", "os.cpu", w.Labels{}, n, d)
-q = q.Bucketize(w.BSum, n, 5*time.Second, 0)
+q = q.Bucketize(w.BucketizerSum, n, 5*time.Second, 0)
+q = q.Map(w.MapperRate, "", 1, 0, 0)
 q = q.Reduce(w.RSum, []string{})
 
 result, err := q.Exec()

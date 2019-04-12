@@ -2,9 +2,7 @@ package query
 
 import "fmt"
 
-type (
-	bucketizer string
-)
+type bucketizer string
 
 var (
 	// BUCKETIZERS
