@@ -33,8 +33,11 @@ func NewGTS(className string) *GTS {
 // NewGTSWithLabels return a nammed and labelized GTS
 func NewGTSWithLabels(className string, labels Labels) *GTS {
 	return &GTS{
-		ClassName: className,
-		Labels:    labels,
+		ClassName:    className,
+		Labels:       labels,
+		Attributes:   Attributes{},
+		LastActivity: 0,
+		Values:       [][]interface{}{},
 	}
 }
 
@@ -194,7 +197,7 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 }
 
 // SensisionSelector return the GTS selector (class + labels (+ attributes) )
-func (gts *GTS) SensisionSelector(withAttributes bool) (string) {
+func (gts *GTS) SensisionSelector(withAttributes bool) string {
 	s := gts.ClassName + formatLabels(gts.Labels)
 	if withAttributes {
 		s += formatAttributes(gts.Attributes)
@@ -203,7 +206,7 @@ func (gts *GTS) SensisionSelector(withAttributes bool) (string) {
 }
 
 // SensisionSelectors return the GTSList selectors (class + labels (+ attributes) )
-func (gtsList GTSList) SensisionSelectors(withAttributes bool) (string) {
+func (gtsList GTSList) SensisionSelectors(withAttributes bool) string {
 	s := ""
 	for _, gts := range gtsList {
 		s += gts.SensisionSelector(withAttributes) + "\n"
@@ -212,7 +215,7 @@ func (gtsList GTSList) SensisionSelectors(withAttributes bool) (string) {
 }
 
 // Sensision return the sensision format of the GTS
-func (gts *GTS) Sensision() (string) {
+func (gts *GTS) Sensision() string {
 	s := ""
 	static := gts.SensisionSelector(false)
 
@@ -251,7 +254,7 @@ func (gts *GTS) Sensision() (string) {
 }
 
 // Sensision return the sensision format of all GTS
-func (gtsList GTSList) Sensision() (string) {
+func (gtsList GTSList) Sensision() string {
 	s := ""
 	for _, gts := range gtsList {
 		s += gts.Sensision() + "\n"
@@ -273,7 +276,7 @@ func getVal(i interface{}) string {
 	return fmt.Sprintf("'%v'", i)
 }
 
-func formatLabels(labels Labels) (string) {
+func formatLabels(labels Labels) string {
 	s := "{"
 	if labels != nil && len(labels) > 0 {
 		pairs := []string{}
@@ -285,7 +288,7 @@ func formatLabels(labels Labels) (string) {
 	return s + "}"
 }
 
-func formatAttributes(attrs Attributes) (string) {
+func formatAttributes(attrs Attributes) string {
 	s := "{"
 	if attrs != nil {
 		pairs := []string{}
