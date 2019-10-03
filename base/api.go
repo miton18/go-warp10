@@ -2,6 +2,7 @@ package base
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -126,7 +127,7 @@ func (c *Client) Meta(gtsList GTSList) ([]byte, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, errors.New(string(bts))
+		return nil, fmt.Errorf("Headers: %+v\nBody: %+v", res.Header, string(bts))
 	}
 
 	return nil, res.Body.Close()
