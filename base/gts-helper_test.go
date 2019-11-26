@@ -69,8 +69,19 @@ func TestNewGTSWithLabels(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewGTSWithLabels(tt.args.className, tt.args.labels); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewGTSWithLabels() = %v, want %v", got, tt.want)
+			got := NewGTSWithLabels(tt.args.className, tt.args.labels)
+			if got.ClassName != tt.want.ClassName {
+				t.Errorf("NewGTSWithLabels() = %v, want %v", got.ClassName, tt.want.ClassName)
+			}
+
+			if !reflect.DeepEqual(got.Labels, tt.want.Labels) {
+				t.Errorf("NewGTSWithLabels() = %v, want %v", got.Labels, tt.want.Labels)
+			}
+
+			if len(tt.want.Attributes) > 0 {
+				if !reflect.DeepEqual(got.Attributes, tt.want.Attributes) {
+					t.Errorf("NewGTSWithLabels() = %v, want %v", got.Attributes, tt.want.Attributes)
+				}
 			}
 		})
 	}
