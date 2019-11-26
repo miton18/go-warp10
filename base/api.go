@@ -167,7 +167,12 @@ func (c *Client) Fetch(selector Selector, start time.Time, stop time.Time) ([]by
 		return nil, errors.New(string(bts))
 	}
 
-	return nil, res.Body.Close()
+	err = res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return bts, nil
 }
 
 // Delete execute a WarpScript on the backend, returning resultat as byte array
