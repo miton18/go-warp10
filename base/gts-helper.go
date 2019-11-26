@@ -281,7 +281,11 @@ func formatLabels(labels Labels) string {
 	if labels != nil && len(labels) > 0 {
 		pairs := []string{}
 		for k, v := range labels {
-			pairs = append(pairs, k+"="+v)
+			if !strings.HasPrefix(v, "=") && !strings.HasPrefix(v, "~") {
+				v = "=" + v
+			}
+
+			pairs = append(pairs, k+v)
 		}
 		s += strings.Join(pairs, ",")
 	}
@@ -293,7 +297,11 @@ func formatAttributes(attrs Attributes) string {
 	if attrs != nil {
 		pairs := []string{}
 		for k, v := range attrs {
-			pairs = append(pairs, k+"="+v)
+			if !strings.HasPrefix(v, "=") && !strings.HasPrefix(v, "~") {
+				v = "=" + v
+			}
+
+			pairs = append(pairs, k+v)
 		}
 		s += strings.Join(pairs, ",")
 	}

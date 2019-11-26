@@ -2,6 +2,7 @@ package base
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/go-test/deep"
@@ -281,7 +282,7 @@ func Test_parseSensisionLine(t *testing.T) {
 		wantV    interface{}
 		wantErr  bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -372,6 +373,46 @@ func TestGTS_Sensision(t *testing.T) {
 			}
 			if gotS := gts.Sensision(); gotS != tt.wantS {
 				t.Errorf("GTS.Sensision() = %v, want %v", gotS, tt.wantS)
+			}
+		})
+	}
+}
+
+func Test_formatLabels(t *testing.T) {
+	type args struct {
+		labels Labels
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{{
+		name: "plain labels",
+		args: args{
+			labels: Labels{
+				"host": "serverA",
+				"zone": "eu-west",
+			},
+		},
+		want: []string{"host=serverA", "zone=eu-west"},
+	}, {
+		name: "values with like",
+		args: args{
+			labels: Labels{
+				"host": "~server.*",
+				"zone": "=eu-west",
+			},
+		},
+		want: []string{"host~server.*", "zone=eu-west"},
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			got := formatLabels(tt.args.labels)
+			for _, want := range tt.want {
+				if !strings.Contains(got, want) {
+					t.Errorf("formatLabels() = %v, want %v", got, tt.want)
+				}
 			}
 		})
 	}
