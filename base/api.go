@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"strconv"
 )
 
 // Exec execute a WarpScript on the backend, returning resultat as byte array
@@ -194,8 +195,8 @@ func (c *Client) Delete(selector Selector, start time.Time, stop time.Time) ([]b
 	if start.IsZero() && stop.IsZero() {
 		q.Add("deleteall", "")
 	} else {
-		q.Add("start", start.UTC().Format(time.RFC3339Nano))
-		q.Add("stop", stop.UTC().Format(time.RFC3339Nano))
+		q.Add("start", strconv.FormatInt(start.UnixNano()/1000, 10))
+		q.Add("end", strconv.FormatInt(stop.UnixNano()/1000, 10))
 	}
 	req.URL.RawQuery = q.Encode()
 
