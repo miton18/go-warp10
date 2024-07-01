@@ -3,11 +3,11 @@ package base
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 // Exec execute a WarpScript on the backend, returning resultat as byte array
@@ -25,10 +25,19 @@ func (c *Client) Exec(warpScript string) ([]byte, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, errors.New(res.Header.Get(HeaderErrorMessage))
+
+		if h := res.Header.Get(HeaderErrorMessage); h != "" {
+			return nil, errors.New(h)
+		}
+
+		if body, err := io.ReadAll(res.Body); err == nil {
+			return nil, errors.New(string(body))
+		}
+
+		return nil, fmt.Errorf("received status code '%s'", res.Status)
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +68,7 @@ func (c *Client) Find(selector Selector) ([]byte, error) {
 		return nil, err
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +99,7 @@ func (c *Client) Update(gts GTSList) error {
 		return err
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -122,13 +131,13 @@ func (c *Client) Meta(gtsList GTSList) ([]byte, error) {
 		return nil, err
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Headers: %+v\nBody: %+v", res.Header, string(bts))
+		return nil, fmt.Errorf("headers: %+v\nBody: %+v", res.Header, string(bts))
 	}
 
 	return nil, res.Body.Close()
@@ -159,7 +168,7 @@ func (c *Client) Fetch(selector Selector, start time.Time, stop time.Time) ([]by
 		return nil, err
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +214,7 @@ func (c *Client) Delete(selector Selector, start time.Time, stop time.Time) ([]b
 		return nil, err
 	}
 
-	bts, err := ioutil.ReadAll(res.Body)
+	bts, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}

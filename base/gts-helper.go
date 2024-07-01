@@ -100,24 +100,24 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 
 	ctx := strings.Split(g[0], "/")
 	if len(ctx) != 3 {
-		err = errors.New("Cannot parse datapoint: " + in)
+		err = errors.New("cannot parse datapoint: " + in)
 		return ts, lat, long, alt, c, l, a, v, err
 	}
 
 	if ctx[0] == "" {
-		err = errors.New("No timestamp provided")
+		err = errors.New("no timestamp provided")
 		return ts, lat, long, alt, c, l, a, v, err
 	}
 	ts, err = strconv.ParseInt(ctx[0], 10, 64)
 	if err != nil {
-		err = errors.New("Cannot parse " + ctx[0] + " as valid timestamp")
+		err = errors.New("cannot parse " + ctx[0] + " as valid timestamp")
 		return ts, lat, long, alt, c, l, a, v, err
 	}
 
 	if ctx[2] != "" {
 		alt, err = strconv.ParseFloat(ctx[2], 64)
 		if err != nil {
-			err = errors.New("Cannot parse " + ctx[0] + " as valid altitude")
+			err = errors.New("cannot parse " + ctx[0] + " as valid altitude")
 			return ts, lat, long, alt, c, l, a, v, err
 		}
 	}
@@ -125,19 +125,19 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 	if ctx[1] != "" {
 		latlong := strings.Split(ctx[1], ":")
 		if len(latlong) != 2 {
-			err = errors.New("Cannot parse " + ctx[1] + " as valid latitude:longitude")
+			err = errors.New("cannot parse " + ctx[1] + " as valid latitude:longitude")
 			return ts, lat, long, alt, c, l, a, v, err
 		}
 
 		lat, err = strconv.ParseFloat(latlong[0], 64)
 		if err != nil {
-			err = errors.New("Cannot parse " + ctx[0] + " as valid latitude")
+			err = errors.New("cannot parse " + ctx[0] + " as valid latitude")
 			return ts, lat, long, alt, c, l, a, v, err
 		}
 
 		long, err = strconv.ParseFloat(latlong[1], 64)
 		if err != nil {
-			err = errors.New("Cannot parse " + ctx[0] + " as valid latitude")
+			err = errors.New("cannot parse " + ctx[0] + " as valid latitude")
 			return ts, lat, long, alt, c, l, a, v, err
 		}
 	}
@@ -149,7 +149,7 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 	// test }
 	//fmt.Println(fmt.Sprintf("%+v", classLabelsAttributes))
 	if len(classLabelsAttributes) != 2 {
-		err = errors.New("Cannot parse " + g[1] + " as valid class + labels + attributes")
+		err = errors.New("cannot parse " + g[1] + " as valid class + labels + attributes")
 		return ts, lat, long, alt, c, l, a, v, err
 	}
 
@@ -168,7 +168,7 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 		for _, labelPair := range labelsValue {
 			keyVal := strings.Split(labelPair, "=")
 			if len(keyVal) != 2 {
-				err = errors.New("Cannot parse " + labelPair + " as valid key and value label")
+				err = errors.New("cannot parse " + labelPair + " as valid key and value label")
 				return ts, lat, long, alt, c, l, a, v, err
 			}
 			l[keyVal[0]] = keyVal[1]
@@ -179,7 +179,7 @@ func parseSensisionLine(in string) (int64, float64, float64, float64, string, La
 	vStr = strings.Trim(vStr, "'")
 
 	if len(vStr) == 0 {
-		err = errors.New("Cannot parse " + strings.Join(g[2:], " ") + " as valid value")
+		err = errors.New("cannot parse " + strings.Join(g[2:], " ") + " as valid value")
 		return ts, lat, long, alt, c, l, a, v, err
 	}
 
