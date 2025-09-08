@@ -6,4 +6,5 @@ const (
 	HeaderErrorLine    = "X-Warp10-Error-Line"
 	HeaderFetched      = "X-Warp10-Fetched"
 	HeaderOperations   = "X-Warp10-Ops"
+	HeaderTimeUNit     = "x-warp10-timeunit"
 )

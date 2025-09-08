@@ -1,6 +1,7 @@
 package base
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -11,38 +12,84 @@ import (
 )
 
 // Exec execute a WarpScript on the backend, returning resultat as byte array
-func (c *Client) Exec(warpScript string) ([]byte, error) {
+func (c *Client) Exec(ctx context.Context, warpScript string) (*ExecResult, error) {
+	execRes := &ExecResult{}
 	r := strings.NewReader(warpScript)
 
-	req, err := http.NewRequest("POST", c.Host+c.ExecPath, r)
+	req, err := http.NewRequestWithContext(ctx, "POST", c.Host+c.ExecPath, r)
 	if err != nil {
-		return nil, err
+		return execRes, err
 	}
 
 	res, err := c.HTTPClient.Do(req)
+	execRes.response = res
 	if err != nil {
-		return nil, err
+		return execRes, err
 	}
 
 	if res.StatusCode != http.StatusOK {
 
-		if h := res.Header.Get(HeaderErrorMessage); h != "" {
-			return nil, errors.New(h)
+		if errMsg := execRes.ErrorMessage(); errMsg != "" {
+			return execRes, errors.New(errMsg)
 		}
 
 		if body, err := io.ReadAll(res.Body); err == nil {
-			return nil, errors.New(string(body))
+			return execRes, errors.New(string(body))
 		}
 
-		return nil, fmt.Errorf("received status code '%s'", res.Status)
+		return execRes, fmt.Errorf("received status code '%s'", res.Status)
 	}
 
 	bts, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return execRes, err
 	}
 
-	return bts, res.Body.Close()
+	execRes.raw = bts
+
+	return execRes, res.Body.Close()
+}
+
+type ExecResult struct {
+	response *http.Response
+	raw      []byte
+}
+
+func (e *ExecResult) Raw() []byte { return e.raw }
+
+func (e *ExecResult) Elapsed() int64 {
+	h := e.response.Header.Get(HeaderElapsed)
+	i, _ := strconv.ParseInt(h, 10, 64)
+	return i
+}
+
+func (e *ExecResult) ErrorLine() int64 {
+	h := e.response.Header.Get(HeaderErrorLine)
+	i, _ := strconv.ParseInt(h, 10, 64)
+	return i
+}
+
+// You should not use this method as the WarpScript error should be returned as 2nd method return parameter
+func (e *ExecResult) ErrorMessage() string {
+	return e.response.Header.Get(HeaderErrorMessage)
+}
+
+func (e *ExecResult) Operations() int64 {
+	h := e.response.Header.Get(HeaderOperations)
+	i, _ := strconv.ParseInt(h, 10, 64)
+	return i
+}
+
+func (e *ExecResult) Fetched() int64 {
+	h := e.response.Header.Get(HeaderFetched)
+	i, _ := strconv.ParseInt(h, 10, 64)
+	return i
+}
+
+func (e *ExecResult) TimeUnit() int64 {
+	h := e.response.Header.Get(HeaderTimeUNit)
+	i, _ := strconv.ParseInt(h, 10, 64)
+	return i
 }
 
 // Find execute a WarpScript on the backend, returning resultat as byte array

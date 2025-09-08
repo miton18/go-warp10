@@ -2,6 +2,7 @@ package query
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -110,23 +111,23 @@ func (q *Query) Sort() *Query {
 }
 
 // Exec send the WarpScript and parse the response
-func (q *Query) Exec() (gtsList b.GTSList, err error) {
+func (q *Query) Exec(ctx context.Context) (gtsList b.GTSList, err error) {
 
 	if len(q.Errs) > 0 {
 		errs := []string{}
 		for _, err := range q.Errs {
 			errs = append(errs, err.Error())
 		}
-		return nil, fmt.Errorf("Can't execute query with errors: %s", strings.Join(errs, "\n"))
+		return nil, fmt.Errorf("can't execute query with errors: %s", strings.Join(errs, "\n"))
 	}
 
-	body, err := q.client.Exec(q.warpscript)
+	body, err := q.client.Exec(ctx, q.warpscript)
 	if err != nil {
 		return
 	}
 
 	var stack []b.GTSList
-	if err = json.Unmarshal(body, &stack); err != nil {
+	if err = json.Unmarshal(body.Raw(), &stack); err != nil {
 		return
 	}
 
