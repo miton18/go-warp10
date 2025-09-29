@@ -57,37 +57,48 @@ type ExecResult struct {
 
 func (e *ExecResult) Raw() []byte { return e.raw }
 
+func (e *ExecResult) getHeader(name, defaultValue string) string {
+	if e.response == nil {
+		return defaultValue
+	}
+	if e.response.Header == nil {
+		return defaultValue
+	}
+
+	return e.response.Header.Get(name)
+}
+
 func (e *ExecResult) Elapsed() int64 {
-	h := e.response.Header.Get(HeaderElapsed)
+	h := e.getHeader(HeaderElapsed, "0")
 	i, _ := strconv.ParseInt(h, 10, 64)
 	return i
 }
 
 func (e *ExecResult) ErrorLine() int64 {
-	h := e.response.Header.Get(HeaderErrorLine)
+	h := e.getHeader(HeaderErrorLine, "0")
 	i, _ := strconv.ParseInt(h, 10, 64)
 	return i
 }
 
 // You should not use this method as the WarpScript error should be returned as 2nd method return parameter
 func (e *ExecResult) ErrorMessage() string {
-	return e.response.Header.Get(HeaderErrorMessage)
+	return e.getHeader(HeaderErrorMessage, "")
 }
 
 func (e *ExecResult) Operations() int64 {
-	h := e.response.Header.Get(HeaderOperations)
+	h := e.getHeader(HeaderOperations, "0")
 	i, _ := strconv.ParseInt(h, 10, 64)
 	return i
 }
 
 func (e *ExecResult) Fetched() int64 {
-	h := e.response.Header.Get(HeaderFetched)
+	h := e.getHeader(HeaderFetched, "0")
 	i, _ := strconv.ParseInt(h, 10, 64)
 	return i
 }
 
 func (e *ExecResult) TimeUnit() int64 {
-	h := e.response.Header.Get(HeaderTimeUNit)
+	h := e.getHeader(HeaderTimeUNit, "0")
 	i, _ := strconv.ParseInt(h, 10, 64)
 	return i
 }
