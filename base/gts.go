@@ -24,4 +24,4 @@ type Labels map[string]string
 type Attributes map[string]string
 
 // Datapoints is the sensision datapoints representation
-type Datapoints [][]interface{}
+type Datapoints [][]any

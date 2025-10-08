@@ -10,7 +10,7 @@ func TestDatapoints_Add(t *testing.T) {
 
 	type args struct {
 		ts    time.Time
-		value interface{}
+		value any
 	}
 	tests := []struct {
 		name string
@@ -47,7 +47,7 @@ func TestDatapoints_Add(t *testing.T) {
 				t.Errorf("NewEmptyGTS() time = %+v, want %+v", tt.dps[0][0], tt.args.ts)
 				return
 			}
-			if tt.dps[0][len(tt.dps[0]) - 1] != tt.args.value {
+			if tt.dps[0][len(tt.dps[0])-1] != tt.args.value {
 				t.Errorf("NewEmptyGTS() value = %+v, want %+v", tt.dps[0][4], tt.args.value)
 				return
 			}

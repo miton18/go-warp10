@@ -2,6 +2,7 @@ package base
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -53,6 +54,12 @@ func (c *Client) Exec(ctx context.Context, warpScript string) (*ExecResult, erro
 type ExecResult struct {
 	response *http.Response
 	raw      []byte
+}
+
+func As[T any](res *ExecResult) (*T, error) {
+	t := new(T)
+
+	return t, json.Unmarshal(res.Raw(), t)
 }
 
 func (e *ExecResult) Raw() []byte { return e.raw }

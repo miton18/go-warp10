@@ -5,32 +5,23 @@ import (
 )
 
 // Add a new point to a GTS
-func (dps *Datapoints) Add(ts time.Time, value interface{}) *Datapoints{
+func (dps *Datapoints) Add(ts time.Time, value any) *Datapoints {
 	if dps == nil {
 		dps = &Datapoints{}
 	}
 
-	*dps = append(*dps, []interface{}{
-		ts.UnixNano() / 1000,
-		value,
-	})
+	*dps = append(*dps, []any{ts.UnixNano() / 1000, value})
 
 	return dps
 }
 
 // AddWithGeo a new point to a GTS with geolocation
-func (dps *Datapoints) AddWithGeo(ts time.Time, lattitude, longitude, altitude float64, value interface{}) *Datapoints {
+func (dps *Datapoints) AddWithGeo(ts time.Time, lattitude, longitude, altitude float64, value any) *Datapoints {
 	if dps == nil {
 		dps = &Datapoints{}
 	}
 
-	*dps = append(*dps, []interface{}{
-		ts.UnixNano() / 1000,
-		lattitude,
-		longitude,
-		altitude,
-		value,
-	})
+	*dps = append(*dps, []any{ts.UnixNano() / 1000, lattitude, longitude, altitude, value})
 
 	return dps
 }
