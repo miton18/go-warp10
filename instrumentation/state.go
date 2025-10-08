@@ -38,7 +38,7 @@ func (s *State) Get() b.GTSList {
 	return b.GTSList{&b.GTS{
 		ClassName: s.name,
 		Labels:    s.context,
-		Values:    [][]interface{}{{s.text}},
+		Values:    [][]any{{s.text}},
 	}}
 }
 

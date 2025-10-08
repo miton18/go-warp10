@@ -3,6 +3,7 @@ package base
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -15,7 +16,7 @@ func NewEmptyGTS() *GTS {
 		Labels:       Labels{},
 		Attributes:   Attributes{},
 		LastActivity: 0,
-		Values:       [][]interface{}{},
+		Values:       [][]any{},
 	}
 }
 
@@ -26,7 +27,7 @@ func NewGTS(className string) *GTS {
 		Labels:       Labels{},
 		Attributes:   Attributes{},
 		LastActivity: 0,
-		Values:       [][]interface{}{},
+		Values:       [][]any{},
 	}
 }
 
@@ -37,7 +38,7 @@ func NewGTSWithLabels(className string, labels Labels) *GTS {
 		Labels:       labels,
 		Attributes:   Attributes{},
 		LastActivity: 0,
-		Values:       [][]interface{}{},
+		Values:       [][]any{},
 	}
 }
 
@@ -51,7 +52,7 @@ func ParseGTSFromString(sensisionLine string) (*GTS, error) {
 		ClassName:  c,
 		Labels:     l,
 		Attributes: a,
-		Values:     [][]interface{}{{ts, lat, long, alt, v}},
+		Values:     [][]any{{ts, lat, long, alt, v}},
 	}
 	return gts, nil
 }
@@ -79,9 +80,9 @@ func ParseGTSArrayFromBytes(in []byte) (GTSList, error) {
 	return ParseGTSArrayFromString(string(in))
 }
 
-func parseSensisionLine(in string) (int64, float64, float64, float64, string, Labels, Attributes, interface{}, error) {
+func parseSensisionLine(in string) (int64, float64, float64, float64, string, Labels, Attributes, any, error) {
 	var err error
-	var v interface{}
+	var v any
 	v = 0
 	ts := int64(time.Now().Nanosecond()) / 1000
 	lat := float64(0)
@@ -262,23 +263,24 @@ func (gtsList GTSList) Sensision() string {
 	return s
 }
 
-func getVal(i interface{}) string {
-	switch i.(type) {
+func getVal(i any) string {
+	switch n := i.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return fmt.Sprintf("%d", i)
+		return fmt.Sprintf("%d", n)
 	case float32, float64:
-		return fmt.Sprintf("%g", i)
+		return fmt.Sprintf("%g", n)
 	case string:
-		return fmt.Sprintf("'%s'", i)
+		return fmt.Sprintf("'%s'", n)
 	case fmt.Stringer:
-		return fmt.Sprintf("'%s'", i.(fmt.Stringer).String())
+		return fmt.Sprintf("'%s'", n.String())
+	default:
+		return fmt.Sprintf("'%v'", n)
 	}
-	return fmt.Sprintf("'%v'", i)
 }
 
 func formatLabels(labels Labels) string {
 	s := "{"
-	if labels != nil && len(labels) > 0 {
+	if len(labels) > 0 {
 		pairs := []string{}
 		for k, v := range labels {
 			if !strings.HasPrefix(v, "=") && !strings.HasPrefix(v, "~") {
@@ -287,6 +289,8 @@ func formatLabels(labels Labels) string {
 
 			pairs = append(pairs, k+v)
 		}
+
+		sort.Strings(pairs)
 		s += strings.Join(pairs, ",")
 	}
 	return s + "}"
@@ -303,6 +307,8 @@ func formatAttributes(attrs Attributes) string {
 
 			pairs = append(pairs, k+v)
 		}
+
+		sort.Strings(pairs)
 		s += strings.Join(pairs, ",")
 	}
 	s += "}"

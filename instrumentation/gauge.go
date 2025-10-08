@@ -41,7 +41,7 @@ func (mc *Gauge) Get() b.GTSList {
 	return b.GTSList{&b.GTS{
 		ClassName: mc.name,
 		Labels:    mc.context,
-		Values:    [][]interface{}{{atomic.LoadUint64(&mc.count)}},
+		Values:    [][]any{{atomic.LoadUint64(&mc.count)}},
 	}}
 }
 

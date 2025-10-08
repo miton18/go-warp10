@@ -19,7 +19,7 @@ func TestNewEmptyGTS(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{},
+			Values:       [][]any{},
 		},
 	}}
 	for _, tt := range tests {
@@ -106,7 +106,7 @@ func TestParseGTSFromString(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 10}},
+			Values:       [][]any{{int64(1234), float64(0), float64(0), float64(0), 10}},
 		},
 		wantErr: false,
 	}, {
@@ -119,7 +119,7 @@ func TestParseGTSFromString(t *testing.T) {
 			Labels:       Labels{"a": "b", "c": "1"},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 10}},
+			Values:       [][]any{{int64(1234), float64(0), float64(0), float64(0), 10}},
 		},
 		wantErr: false,
 	}, {
@@ -132,7 +132,7 @@ func TestParseGTSFromString(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), "my awesome metric"}},
+			Values:       [][]any{{int64(1234), float64(0), float64(0), float64(0), "my awesome metric"}},
 		},
 		wantErr: false,
 	}, {
@@ -145,7 +145,7 @@ func TestParseGTSFromString(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(12.3456), float64(4.345678), float64(1230), 10}},
+			Values:       [][]any{{int64(1234), float64(12.3456), float64(4.345678), float64(1230), 10}},
 		},
 		wantErr: false,
 	}, {
@@ -207,7 +207,7 @@ func TestParseGTSFromBytes(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 50}},
+			Values:       [][]any{{int64(1234), float64(0), float64(0), float64(0), 50}},
 		},
 		wantErr: false,
 	}}
@@ -244,13 +244,13 @@ func TestParseGTSArrayFromString(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(1234), float64(0), float64(0), float64(0), 50}},
+			Values:       [][]any{{int64(1234), float64(0), float64(0), float64(0), 50}},
 		}, &GTS{
 			ClassName:    "my.metric2",
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{int64(5678), float64(0), float64(0), float64(0), 100}},
+			Values:       [][]any{{int64(5678), float64(0), float64(0), float64(0), 100}},
 		}},
 		wantErr: false,
 	}, {
@@ -290,7 +290,7 @@ func Test_parseSensisionLine(t *testing.T) {
 		wantC    string
 		wantL    Labels
 		wantA    Attributes
-		wantV    interface{}
+		wantV    any
 		wantErr  bool
 	}{
 		// TODO: Add test cases.
@@ -336,7 +336,7 @@ func TestGTS_Sensision(t *testing.T) {
 		Labels       Labels
 		Attributes   Attributes
 		LastActivity int64
-		Values       [][]interface{}
+		Values       [][]any
 	}
 	tests := []struct {
 		name   string
@@ -349,7 +349,7 @@ func TestGTS_Sensision(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{1234, 100}},
+			Values:       [][]any{{1234, 100}},
 		},
 		wantS: "1234// my.metric{} 100\n",
 	}, {
@@ -359,7 +359,7 @@ func TestGTS_Sensision(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{1234, 4.086475784, -1.6497593, 100}},
+			Values:       [][]any{{1234, 4.086475784, -1.6497593, 100}},
 		},
 		wantS: "1234/4.086475784:-1.6497593/ my.metric{} 100\n",
 	}, {
@@ -369,7 +369,7 @@ func TestGTS_Sensision(t *testing.T) {
 			Labels:       Labels{},
 			Attributes:   Attributes{},
 			LastActivity: 0,
-			Values:       [][]interface{}{{1234, -4.086475784, 1.6497593, 12034, 100}},
+			Values:       [][]any{{1234, -4.086475784, 1.6497593, 12034, 100}},
 		},
 		wantS: "1234/-4.086475784:1.6497593/12034 my.metric{} 100\n",
 	}}
