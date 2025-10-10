@@ -17,12 +17,14 @@ type Client struct {
 	ReadToken  string
 	WriteToken string
 
-	HTTPClient *http.Client
+	httpClient *http.Client
 }
 
+type option func(c *Client)
+
 // NewClient return a configured Warp10 Client
-func NewClient(host string) *Client {
-	return &Client{
+func NewClient(host string, options ...option) *Client {
+	c := &Client{
 		Host:         host,
 		Warp10Header: "X-Warp10-Token",
 		ExecPath:     "/api/v0/exec",
@@ -31,6 +33,18 @@ func NewClient(host string) *Client {
 		FetchPath:    "/api/v0/fetch",
 		FindPath:     "/api/v0/find",
 		DeletePath:   "/api/v0/delete",
-		HTTPClient:   http.DefaultClient,
+		httpClient:   http.DefaultClient,
+	}
+
+	for _, opt := range options {
+		opt(c)
+	}
+
+	return c
+}
+
+func WithHTTPClient(client *http.Client) option {
+	return func(c *Client) {
+		c.httpClient = client
 	}
 }

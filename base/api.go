@@ -22,7 +22,7 @@ func (c *Client) Exec(ctx context.Context, warpScript string) (*ExecResult, erro
 		return execRes, err
 	}
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	execRes.response = res
 	if err != nil {
 		return execRes, err
@@ -128,7 +128,7 @@ func (c *Client) Find(selector Selector) ([]byte, error) {
 	q.Add("format", "fulltext")
 	req.URL.RawQuery = q.Encode()
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (c *Client) Update(gts GTSList) error {
 		return err
 	}
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func (c *Client) Meta(gtsList GTSList) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (c *Client) Fetch(selector Selector, start time.Time, stop time.Time) ([]by
 	q.Add("stop", stop.UTC().Format(time.RFC3339Nano))
 	req.URL.RawQuery = q.Encode()
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func (c *Client) Delete(selector Selector, start time.Time, stop time.Time) ([]b
 	}
 	req.URL.RawQuery = q.Encode()
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
