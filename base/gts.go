@@ -1,5 +1,7 @@
 package base
 
+import "maps"
+
 // GTS is the Warp10 representation of a GeoTimeSerie (GTS)
 type GTS struct {
 	// Name of the time serie
@@ -19,6 +21,18 @@ type GTSList []*GTS
 
 // Labels is a string key/value definition
 type Labels map[string]string
+
+func (labels Labels) Copy() Labels {
+	n := Labels{}
+	maps.Copy(n, labels)
+	return n
+}
+
+func (labels Labels) CopyWith(more Labels) Labels {
+	c := labels.Copy()
+	maps.Copy(c, more)
+	return c
+}
 
 // Attributes is a string key/value definition
 type Attributes map[string]string
