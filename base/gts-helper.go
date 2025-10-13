@@ -244,12 +244,10 @@ func (gts *GTS) Sensision() string {
 		}
 
 		if lat != "" && lng != "" {
-			s += fmt.Sprintf("%s/%s:%s/%s %s %s", ts, lat, lng, alt, static, val)
+			s += fmt.Sprintf("%s/%s:%s/%s %s %s\n", ts, lat, lng, alt, static, val)
 		} else {
-			s += fmt.Sprintf("%s//%s %s %s", ts, alt, static, val)
+			s += fmt.Sprintf("%s//%s %s %s\n", ts, alt, static, val)
 		}
-
-		s += "\n"
 	}
 	return s
 }
